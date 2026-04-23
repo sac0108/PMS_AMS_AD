@@ -3,317 +3,239 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PMS / AMS Dashboard Prototype</title>
+  <title>PMS / AMS Enterprise Dashboard Prototype</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --bg: #f5f7fb;
-      --panel: #ffffff;
-      --text: #1f2a37;
-      --muted: #6b7280;
-      --border: #e5e7eb;
+      --bg: #f2f5fa;
+      --panel: #fff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
       --blue: #2f80ed;
       --orange: #f2994a;
       --green: #27ae60;
-      --red: #eb5757;
+      --red: #e74c3c;
       --yellow: #f2c94c;
-      --sidebar: #0f172a;
-      --sidebar-hover: #1e293b;
+      --side: #0f172a;
+      --side-hover: #1e293b;
+      --shadow: 0 6px 18px rgba(15, 23, 42, 0.07);
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
-      background: var(--bg);
       color: var(--text);
+      background: var(--bg);
     }
-
-    .app {
-      min-height: 100vh;
-      display: flex;
-    }
-
+    .app { min-height: 100vh; display: flex; }
     .sidebar {
-      width: 240px;
-      background: var(--sidebar);
+      width: 250px;
+      background: var(--side);
       color: #fff;
-      padding: 20px 14px;
+      padding: 16px 12px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
     }
-
     .brand {
       font-size: 18px;
       font-weight: 700;
-      letter-spacing: .2px;
-      margin-bottom: 12px;
-      padding: 10px 12px;
-      border-bottom: 1px solid rgba(255,255,255,.16);
+      margin: 4px 8px 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     }
-
     .nav-btn {
-      background: transparent;
-      border: none;
-      color: #dbeafe;
+      border: 0;
+      width: 100%;
       text-align: left;
-      padding: 12px;
+      padding: 11px 12px;
       border-radius: 8px;
-      font-size: 14px;
+      background: transparent;
+      color: #dbeafe;
       cursor: pointer;
-      transition: background .2s;
+      font-size: 13px;
+      transition: 0.2s ease;
     }
-
-    .nav-btn:hover { background: var(--sidebar-hover); }
-    .nav-btn.active {
-      background: #1d4ed8;
-      color: #fff;
-      font-weight: 600;
-    }
-
-    .content-wrap {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
+    .nav-btn:hover { background: var(--side-hover); }
+    .nav-btn.active { background: #1d4ed8; color: white; font-weight: 600; }
+    .content-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; }
     .topbar {
       background: var(--panel);
       border-bottom: 1px solid var(--border);
-      padding: 14px 20px;
+      padding: 12px 18px;
       display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 10px;
       flex-wrap: wrap;
-      align-items: center;
     }
-
-    .chip {
-      background: #f8fafc;
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+    select, input[type="date"] {
       border: 1px solid var(--border);
-      color: var(--muted);
+      border-radius: 8px;
+      padding: 8px 10px;
       font-size: 12px;
-      border-radius: 20px;
-      padding: 8px 12px;
+      color: var(--text);
+      background: #fff;
     }
-
-    .main {
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .view { display: none; }
+    .small-note { color: var(--muted); font-size: 12px; }
+    main.main { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+    .view { display: none; animation: fade 0.25s ease; }
     .view.active { display: block; }
-
-    .cards {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .card {
-      flex: 1;
-      min-width: 160px;
+    @keyframes fade { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
+    .cards { display: grid; grid-template-columns: repeat(4, minmax(140px, 1fr)); gap: 10px; }
+    .card, .panel {
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 14px;
+      padding: 12px;
+      box-shadow: var(--shadow);
     }
-
-    .card-title {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
-
-    .card-value {
-      font-size: 28px;
-      font-weight: 700;
-    }
-
-    .panel {
-      background: var(--panel);
+    .card-title { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .card-value { font-size: 24px; font-weight: 700; }
+    .panel h3 { margin: 0 0 10px; font-size: 15px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; border-bottom: 1px solid var(--border); padding: 8px 6px; }
+    th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .3px; }
+    .badge { border-radius: 999px; padding: 3px 8px; font-size: 11px; font-weight: 600; display: inline-block; }
+    .blue { color: var(--blue); } .orange { color: var(--orange); } .green { color: var(--green); }
+    .good { background: rgba(39,174,96,.14); color: var(--green); }
+    .warn { background: rgba(242,201,76,.22); color: #8a6e00; }
+    .risk { background: rgba(231,76,60,.16); color: #b42318; }
+    .status-completed { background: rgba(39,174,96,.15); color: #15803d; }
+    .status-inprogress { background: rgba(47,128,237,.14); color: var(--blue); }
+    .status-onhold { background: rgba(231,76,60,.14); color: #b42318; }
+    .progress { width: 120px; background: #e8eef6; border-radius: 999px; height: 8px; overflow: hidden; }
+    .progress > span { display: block; height: 100%; background: linear-gradient(90deg, #2f80ed, #56ccf2); }
+    .health-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .health-item { border: 1px solid var(--border); border-radius: 10px; padding: 8px; text-align: center; }
+    .calendar-grid {
+      overflow: auto;
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      overflow-x: auto;
+      border-radius: 10px;
     }
-
-    .panel h3 {
-      margin: 0 0 12px;
-      font-size: 16px;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-
-    th, td {
-      border-bottom: 1px solid var(--border);
-      padding: 10px 8px;
-      text-align: left;
-      white-space: nowrap;
-    }
-
-    th {
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: .4px;
-    }
-
-    .badge {
-      font-weight: 600;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      display: inline-block;
-    }
-
-    .good { background: rgba(39, 174, 96, .14); color: var(--green); }
-    .warn { background: rgba(242, 201, 76, .2); color: #9a7b00; }
-    .risk { background: rgba(235, 87, 87, .16); color: #b42318; }
-
-    .status-active { background: rgba(47,128,237,.14); color: var(--blue); }
-    .status-delayed { background: rgba(235,87,87,.14); color: #b42318; }
-    .status-planning { background: rgba(242,201,76,.2); color: #9a7b00; }
-
-    .progress {
-      width: 120px;
-      height: 9px;
-      background: #edf2f7;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .progress > span {
-      display: block;
-      height: 100%;
-      background: linear-gradient(90deg, var(--blue), #56ccf2);
-    }
-
-    .legend {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 8px;
-    }
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 6px;
-      vertical-align: middle;
-    }
-
-    @media (max-width: 900px) {
-      .sidebar { width: 180px; }
-      .grid-2 { grid-template-columns: 1fr; }
+    .calendar-grid table td.leave { background: rgba(231, 76, 60, 0.12); color: #9f1239; font-weight: 600; }
+    .calendar-grid table td.work { background: rgba(39, 174, 96, 0.08); }
+    .list-inline { margin: 0; padding-left: 18px; font-size: 13px; }
+    @media (max-width: 1100px) {
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .sidebar { width: 200px; }
     }
   </style>
 </head>
 <body>
   <div class="app">
     <aside class="sidebar">
-      <div class="brand">PMS / AMS</div>
+      <div class="brand">PMS / AMS Dashboard</div>
       <button class="nav-btn active" data-view="executive">Executive Summary</button>
       <button class="nav-btn" data-view="capacity">Resource Capacity</button>
       <button class="nav-btn" data-view="effort">Effort Tracking</button>
       <button class="nav-btn" data-view="portfolio">Project Portfolio</button>
+      <button class="nav-btn" data-view="leave">Leave & Holiday</button>
+      <button class="nav-btn" data-view="forecast">Forecast & Allocation</button>
+      <button class="nav-btn" data-view="reports">Reports</button>
     </aside>
 
     <div class="content-wrap">
       <div class="topbar">
-        <span class="chip">Month: Apr 2026</span>
-        <span class="chip">Location: All</span>
-        <span class="chip">Role: All</span>
-        <span class="chip">Project: All</span>
+        <div class="filters">
+          <input id="dateFilter" type="date" />
+          <select id="groupFilter"></select>
+        </div>
+        <div class="small-note">Frontend-only SPA prototype · Chart.js CDN · Hardcoded JSON</div>
       </div>
 
       <main class="main">
         <section id="executive" class="view active">
           <div class="cards">
-            <div class="card">
-              <div class="card-title">Total Capacity</div>
-              <div class="card-value" id="totalCapacity">0h</div>
-            </div>
-            <div class="card">
-              <div class="card-title">Utilization %</div>
-              <div class="card-value" id="utilizationPct">0%</div>
-            </div>
-            <div class="card">
-              <div class="card-title">Available %</div>
-              <div class="card-value" id="availablePct">0%</div>
-            </div>
+            <div class="card"><div class="card-title">Total Capacity</div><div class="card-value" id="kpiTotalCapacity">-</div></div>
+            <div class="card"><div class="card-title">AMS %</div><div class="card-value" id="kpiAmsPct">-</div></div>
+            <div class="card"><div class="card-title">Project %</div><div class="card-value" id="kpiProjectPct">-</div></div>
+            <div class="card"><div class="card-title">Available %</div><div class="card-value" id="kpiAvailPct">-</div></div>
           </div>
-          <div class="panel" style="margin-top:14px; max-width:680px;">
-            <h3>Capacity Split</h3>
-            <canvas id="summaryPie" height="130"></canvas>
-            <div class="legend">
-              <span><i class="dot" style="background:var(--blue)"></i>AMS</span>
-              <span><i class="dot" style="background:var(--orange)"></i>Project</span>
-              <span><i class="dot" style="background:var(--green)"></i>Available</span>
-            </div>
+          <div class="grid-2" style="margin-top:12px;">
+            <div class="panel"><h3>Capacity Split</h3><canvas id="execDonut" height="170"></canvas></div>
+            <div class="panel"><h3>Effort Trend (7 Days)</h3><canvas id="execTrend" height="170"></canvas></div>
           </div>
+          <div class="panel" style="margin-top:12px;"><h3>Team Health</h3><div id="teamHealth" class="health-list"></div></div>
         </section>
 
         <section id="capacity" class="view">
-          <div class="panel">
-            <h3>Resource Capacity</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th><th>Role</th><th>AMS Hours</th><th>Project Hours</th><th>Available</th><th>Load</th>
-                </tr>
-              </thead>
-              <tbody id="capacityTable"></tbody>
-            </table>
+          <div class="grid-2">
+            <div class="panel"><h3>Resource Capacity</h3><table><thead><tr><th>Name</th><th>Role</th><th>AMS</th><th>Project</th><th>Available</th><th>Utilization</th></tr></thead><tbody id="resourceTable"></tbody></table></div>
+            <div class="panel"><h3>Available Hours by Resource</h3><canvas id="resourceAvailChart" height="220"></canvas></div>
+          </div>
+          <div class="grid-2" style="margin-top:12px;">
+            <div class="panel"><h3>Top Available Resources</h3><ul id="topAvailable" class="list-inline"></ul></div>
+            <div class="panel"><h3>Overutilized Resources</h3><ul id="overUtilized" class="list-inline"></ul></div>
           </div>
         </section>
 
         <section id="effort" class="view">
-          <div class="grid-2">
-            <div class="panel">
-              <h3>Effort by Project</h3>
-              <canvas id="effortBar" height="180"></canvas>
-            </div>
-            <div class="panel">
-              <h3>Sample Effort Entries</h3>
-              <table>
-                <thead>
-                  <tr><th>Resource</th><th>Project</th><th>Hours</th></tr>
-                </thead>
-                <tbody id="effortTable"></tbody>
-              </table>
-            </div>
+          <div class="cards">
+            <div class="card"><div class="card-title">Total Effort</div><div class="card-value" id="effortTotal">-</div></div>
+            <div class="card"><div class="card-title">Avg Effort / Entry</div><div class="card-value" id="effortAvg">-</div></div>
           </div>
+          <div class="grid-3" style="margin-top:12px;">
+            <div class="panel"><h3>Category Distribution</h3><canvas id="effortPie" height="150"></canvas></div>
+            <div class="panel"><h3>Effort Trend</h3><canvas id="effortLine" height="150"></canvas></div>
+            <div class="panel"><h3>Effort by Project</h3><canvas id="effortProjectBar" height="150"></canvas></div>
+          </div>
+          <div class="panel" style="margin-top:12px;"><h3>Activity List</h3><table><thead><tr><th>Date</th><th>Resource</th><th>Project</th><th>Category</th><th>Hours</th></tr></thead><tbody id="effortActivity"></tbody></table></div>
         </section>
 
         <section id="portfolio" class="view">
-          <div class="panel">
-            <h3>Project Portfolio</h3>
-            <table>
-              <thead>
-                <tr><th>Project</th><th>Status</th><th>Progress %</th><th>Progress</th></tr>
-              </thead>
-              <tbody id="portfolioTable"></tbody>
-            </table>
+          <div class="cards">
+            <div class="card"><div class="card-title">Total Projects</div><div class="card-value" id="projectCount">-</div></div>
+            <div class="card"><div class="card-title">Completed</div><div class="card-value" id="projectCompleted">-</div></div>
+            <div class="card"><div class="card-title">In Progress</div><div class="card-value" id="projectProgress">-</div></div>
+          </div>
+          <div class="grid-2" style="margin-top:12px;">
+            <div class="panel"><h3>Status Distribution</h3><canvas id="statusDonut" height="170"></canvas></div>
+            <div class="panel"><h3>Effort per Project</h3><canvas id="projectEffortBar" height="170"></canvas></div>
+          </div>
+          <div class="panel" style="margin-top:12px;"><h3>Project List</h3><table><thead><tr><th>Project</th><th>Type</th><th>Status</th><th>Dates</th><th>Progress</th><th>Health</th></tr></thead><tbody id="projectTable"></tbody></table></div>
+        </section>
+
+        <section id="leave" class="view">
+          <div class="cards">
+            <div class="card"><div class="card-title">Leaves This Week</div><div class="card-value" id="leavesWeek">-</div></div>
+            <div class="card"><div class="card-title">People on Leave (selected date)</div><div class="card-value" id="leavePeople">-</div></div>
+          </div>
+          <div class="panel" style="margin-top:12px;"><h3>Leave Calendar Grid (Resource vs Date)</h3><div class="calendar-grid"><table><thead id="leaveHead"></thead><tbody id="leaveBody"></tbody></table></div></div>
+        </section>
+
+        <section id="forecast" class="view">
+          <div class="grid-2">
+            <div class="panel"><h3>Capacity vs Demand (Next 7 Days)</h3><canvas id="forecastLine" height="180"></canvas></div>
+            <div class="panel"><h3>Simulation</h3>
+              <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+                <select id="simulationProject"></select>
+              </div>
+              <div id="simulationResult" class="small-note"></div>
+            </div>
+          </div>
+          <div class="panel" style="margin-top:12px;"><h3>Resource Availability Next 7 Days</h3><table><thead><tr><th>Resource</th><th>Group</th><th>Available Hours (7d)</th></tr></thead><tbody id="forecastTable"></tbody></table></div>
+        </section>
+
+        <section id="reports" class="view">
+          <div class="cards">
+            <div class="card"><div class="card-title">Utilization %</div><div class="card-value" id="reportUtil">-</div></div>
+            <div class="card"><div class="card-title">Available %</div><div class="card-value" id="reportAvail">-</div></div>
+            <div class="card"><div class="card-title">Total Effort</div><div class="card-value" id="reportEffort">-</div></div>
+            <div class="card"><div class="card-title">Overutilized Count</div><div class="card-value" id="reportOver">-</div></div>
+          </div>
+          <div class="grid-3" style="margin-top:12px;">
+            <div class="panel"><h3>Resource Ranking</h3><canvas id="reportRank" height="160"></canvas></div>
+            <div class="panel"><h3>Effort Distribution</h3><canvas id="reportDist" height="160"></canvas></div>
+            <div class="panel"><h3>Project Health</h3><canvas id="reportHealth" height="160"></canvas></div>
           </div>
         </section>
       </main>
@@ -321,125 +243,218 @@
   </div>
 
   <script>
-    const resources = [
-      { name: "Sachin Saxena", role: "Tech Lead", ams: 48, project: 92, capacity: 160 },
-      { name: "Ashfaq Patel", role: "Senior Engineer", ams: 64, project: 72, capacity: 160 },
-      { name: "Akhil Reddy", role: "Engineer", ams: 56, project: 60, capacity: 160 },
-      { name: "Sunil Kumar", role: "Engineer", ams: 72, project: 44, capacity: 160 },
-      { name: "Karthik", role: "QA Analyst", ams: 40, project: 58, capacity: 160 }
-    ];
+    const data = {
+      resources: [
+        { id: 1, name: 'Sachin Saxena', role: 'Tech Lead', group: 'Modernization', capacity: 8 },
+        { id: 2, name: 'Ashfaq Patel', role: 'Senior Engineer', group: 'Modernization', capacity: 8 },
+        { id: 3, name: 'Akhil Kumar Reddy', role: 'Engineer', group: 'AMS', capacity: 8 },
+        { id: 4, name: 'Devvarshini', role: 'Engineer', group: 'AMS', capacity: 8 },
+        { id: 5, name: 'Naga Soundarya', role: 'QA Analyst', group: 'QA', capacity: 8 },
+        { id: 6, name: 'Sneha', role: 'Engineer', group: 'Pricing', capacity: 8 },
+        { id: 7, name: 'Sunil Kumar', role: 'Engineer', group: 'Pricing', capacity: 8 },
+        { id: 8, name: 'Georgian Martin', role: 'Architect', group: 'Modernization', capacity: 8 },
+        { id: 9, name: 'Karthik', role: 'QA Analyst', group: 'QA', capacity: 8 },
+        { id: 10, name: 'Akhila', role: 'Business Analyst', group: 'AMS', capacity: 8 },
+        { id: 11, name: 'Sharad', role: 'Engineer', group: 'EDI', capacity: 8 },
+        { id: 12, name: 'Shreyas', role: 'Engineer', group: 'EDI', capacity: 8 },
+        { id: 13, name: 'Sohila', role: 'Engineer', group: 'HRMS', capacity: 8 },
+        { id: 14, name: 'Trinad', role: 'Engineer', group: 'HRMS', capacity: 8 },
+        { id: 15, name: 'Ullas Patil', role: 'Delivery Manager', group: 'Management', capacity: 8 }
+      ],
+      projects: [
+        { id: 'P1', name: 'WebMethod Modernization', type: 'Transformation', status: 'In Progress', progress: 72, startDate: '2026-01-10', endDate: '2026-06-30' },
+        { id: 'P2', name: 'Exxon Mobile Testing', type: 'Testing', status: 'In Progress', progress: 55, startDate: '2026-02-01', endDate: '2026-07-10' },
+        { id: 'P3', name: 'Dynamic Pricing', type: 'Enhancement', status: 'In Progress', progress: 64, startDate: '2026-01-20', endDate: '2026-05-20' },
+        { id: 'P4', name: 'TMap EDI', type: 'Integration', status: 'Completed', progress: 100, startDate: '2025-11-10', endDate: '2026-03-15' },
+        { id: 'P5', name: 'TMap DART', type: 'Integration', status: 'In Progress', progress: 46, startDate: '2026-02-05', endDate: '2026-08-20' },
+        { id: 'P6', name: 'USSHEET HRMS Replacement', type: 'Platform', status: 'On Hold', progress: 35, startDate: '2026-01-15', endDate: '2026-09-30' },
+        { id: 'P7', name: 'ITA Modernization', type: 'Modernization', status: 'In Progress', progress: 58, startDate: '2026-01-08', endDate: '2026-10-15' },
+        { id: 'P8', name: 'SAP T25', type: 'ERP', status: 'Completed', progress: 100, startDate: '2025-10-01', endDate: '2026-02-28' }
+      ],
+      leaves: [
+        { resource: 'Sneha', startDate: '2026-04-22', endDate: '2026-04-24' },
+        { resource: 'Karthik', startDate: '2026-04-25', endDate: '2026-04-26' },
+        { resource: 'Akhila', startDate: '2026-04-23', endDate: '2026-04-23' },
+        { resource: 'Sunil Kumar', startDate: '2026-04-27', endDate: '2026-04-28' }
+      ]
+    };
 
-    const projects = [
-      { name: "WebMethod Modernization", status: "Active", progress: 72 },
-      { name: "ITA Modernization", status: "Delayed", progress: 48 },
-      { name: "Dynamic Pricing", status: "Planning", progress: 30 }
-    ];
-
-    const effortEntries = [
-      { resource: "Sachin Saxena", project: "WebMethod Modernization", hours: 36 },
-      { resource: "Ashfaq Patel", project: "ITA Modernization", hours: 30 },
-      { resource: "Akhil Reddy", project: "Dynamic Pricing", hours: 26 },
-      { resource: "Sunil Kumar", project: "WebMethod Modernization", hours: 28 },
-      { resource: "Karthik", project: "ITA Modernization", hours: 24 }
-    ];
-
-    const totals = resources.reduce((acc, r) => {
-      acc.capacity += r.capacity;
-      acc.ams += r.ams;
-      acc.project += r.project;
-      return acc;
-    }, { capacity: 0, ams: 0, project: 0 });
-    totals.available = totals.capacity - (totals.ams + totals.project);
-
-    const utilization = ((totals.ams + totals.project) / totals.capacity) * 100;
-    const availablePct = (totals.available / totals.capacity) * 100;
-
-    document.getElementById("totalCapacity").textContent = `${totals.capacity}h`;
-    document.getElementById("utilizationPct").textContent = `${utilization.toFixed(1)}%`;
-    document.getElementById("availablePct").textContent = `${availablePct.toFixed(1)}%`;
-
-    const capacityBody = document.getElementById("capacityTable");
-    resources.forEach(r => {
-      const available = r.capacity - (r.ams + r.project);
-      const load = ((r.ams + r.project) / r.capacity) * 100;
-      const loadClass = load < 70 ? "good" : load <= 90 ? "warn" : "risk";
-      capacityBody.insertAdjacentHTML("beforeend", `
-        <tr>
-          <td>${r.name}</td>
-          <td>${r.role}</td>
-          <td style="color:var(--blue);font-weight:600;">${r.ams}</td>
-          <td style="color:var(--orange);font-weight:600;">${r.project}</td>
-          <td style="color:var(--green);font-weight:600;">${available}</td>
-          <td><span class="badge ${loadClass}">${load.toFixed(0)}%</span></td>
-        </tr>
-      `);
-    });
-
-    const effortTable = document.getElementById("effortTable");
-    effortEntries.forEach(e => {
-      effortTable.insertAdjacentHTML("beforeend", `
-        <tr><td>${e.resource}</td><td>${e.project}</td><td>${e.hours}</td></tr>
-      `);
-    });
-
-    const portfolioTable = document.getElementById("portfolioTable");
-    projects.forEach(p => {
-      const statusClass = p.status === "Active" ? "status-active" : p.status === "Delayed" ? "status-delayed" : "status-planning";
-      portfolioTable.insertAdjacentHTML("beforeend", `
-        <tr>
-          <td>${p.name}</td>
-          <td><span class="badge ${statusClass}">${p.status}</span></td>
-          <td>${p.progress}%</td>
-          <td><div class="progress"><span style="width:${p.progress}%;"></span></div></td>
-        </tr>
-      `);
-    });
-
-    const effortByProject = projects.map(p => ({
-      name: p.name,
-      hours: effortEntries.filter(e => e.project === p.name).reduce((sum, e) => sum + e.hours, 0)
-    }));
-
-    new Chart(document.getElementById("summaryPie"), {
-      type: "pie",
-      data: {
-        labels: ["AMS", "Project", "Available"],
-        datasets: [{
-          data: [totals.ams, totals.project, totals.available],
-          backgroundColor: ["#2f80ed", "#f2994a", "#27ae60"]
-        }]
-      },
-      options: { plugins: { legend: { display: false } } }
-    });
-
-    new Chart(document.getElementById("effortBar"), {
-      type: "bar",
-      data: {
-        labels: effortByProject.map(e => e.name),
-        datasets: [{
-          label: "Hours",
-          data: effortByProject.map(e => e.hours),
-          backgroundColor: "#f2994a"
-        }]
-      },
-      options: {
-        maintainAspectRatio: false,
-        scales: { y: { beginAtZero: true } },
-        plugins: { legend: { display: false } }
-      }
-    });
-
-    const navButtons = document.querySelectorAll(".nav-btn");
-    const views = document.querySelectorAll(".view");
-
-    navButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        navButtons.forEach(b => b.classList.remove("active"));
-        views.forEach(v => v.classList.remove("active"));
-        btn.classList.add("active");
-        document.getElementById(btn.dataset.view).classList.add("active");
+    const dates = ['2026-04-21', '2026-04-22', '2026-04-23', '2026-04-24', '2026-04-25', '2026-04-26', '2026-04-27'];
+    data.effortEntries = [];
+    data.resources.forEach((r, idx) => {
+      dates.forEach((d, di) => {
+        const project = data.projects[(idx + di) % data.projects.length];
+        const amsHours = ((idx + di) % 3) + 1;
+        const projectHours = Math.max(0, r.capacity - amsHours - ((idx + di) % 2));
+        data.effortEntries.push({ resource: r.name, projectId: project.id, category: 'AMS', hours: amsHours, date: d });
+        data.effortEntries.push({ resource: r.name, projectId: project.id, category: 'Project', hours: projectHours, date: d });
       });
     });
+
+    const chartStore = {};
+    const byId = (id) => document.getElementById(id);
+    const isLeave = (resource, date) => data.leaves.some(l => l.resource === resource && date >= l.startDate && date <= l.endDate);
+
+    byId('dateFilter').value = '2026-04-23';
+
+    const groups = ['All', ...new Set(data.resources.map(r => r.group))];
+    byId('groupFilter').innerHTML = groups.map(g => `<option>${g}</option>`).join('');
+    byId('simulationProject').innerHTML = data.projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+    function filteredResources() {
+      const g = byId('groupFilter').value;
+      return g === 'All' ? data.resources : data.resources.filter(r => r.group === g);
+    }
+
+    function computeMetrics() {
+      const selectedDate = byId('dateFilter').value;
+      const selectedResources = filteredResources();
+      const names = new Set(selectedResources.map(r => r.name));
+      const efforts = data.effortEntries.filter(e => names.has(e.resource));
+      const todaysEfforts = efforts.filter(e => e.date === selectedDate);
+      const totalCapacity = selectedResources.length * 8;
+      const amsHours = todaysEfforts.filter(e => e.category === 'AMS').reduce((s, e) => s + e.hours, 0);
+      const projectHours = todaysEfforts.filter(e => e.category === 'Project').reduce((s, e) => s + e.hours, 0);
+      const availableCapacity = Math.max(0, totalCapacity - amsHours - projectHours);
+      const utilizationPct = totalCapacity ? ((amsHours + projectHours) / totalCapacity) * 100 : 0;
+
+      const groupAgg = selectedResources.reduce((acc, r) => {
+        const rEff = todaysEfforts.filter(e => e.resource === r.name);
+        const a = rEff.filter(e => e.category === 'AMS').reduce((s, e) => s + e.hours, 0);
+        const p = rEff.filter(e => e.category === 'Project').reduce((s, e) => s + e.hours, 0);
+        acc[r.group] = acc[r.group] || { ams: 0, project: 0, capacity: 0 };
+        acc[r.group].ams += a; acc[r.group].project += p; acc[r.group].capacity += 8;
+        return acc;
+      }, {});
+
+      const projAgg = data.projects.map(p => ({
+        id: p.id,
+        name: p.name,
+        hours: efforts.filter(e => e.projectId === p.id).reduce((s, e) => s + e.hours, 0)
+      }));
+
+      return { selectedDate, selectedResources, efforts, todaysEfforts, totalCapacity, amsHours, projectHours, availableCapacity, utilizationPct, groupAgg, projAgg };
+    }
+
+    function upsertChart(key, config) {
+      if (chartStore[key]) chartStore[key].destroy();
+      chartStore[key] = new Chart(byId(key), config);
+    }
+
+    function render() {
+      const m = computeMetrics();
+      const amsPct = m.totalCapacity ? (m.amsHours / m.totalCapacity) * 100 : 0;
+      const projectPct = m.totalCapacity ? (m.projectHours / m.totalCapacity) * 100 : 0;
+      const availPct = m.totalCapacity ? (m.availableCapacity / m.totalCapacity) * 100 : 0;
+
+      byId('kpiTotalCapacity').textContent = `${m.totalCapacity}h`;
+      byId('kpiAmsPct').textContent = `${amsPct.toFixed(1)}%`;
+      byId('kpiProjectPct').textContent = `${projectPct.toFixed(1)}%`;
+      byId('kpiAvailPct').textContent = `${availPct.toFixed(1)}%`;
+
+      const trendMap = dates.map(d => ({ d, h: m.efforts.filter(e => e.date === d).reduce((s, e) => s + e.hours, 0) }));
+      upsertChart('execDonut', { type: 'doughnut', data: { labels: ['AMS', 'Project', 'Available'], datasets: [{ data: [m.amsHours, m.projectHours, m.availableCapacity], backgroundColor: ['#2f80ed', '#f2994a', '#27ae60'] }] }, options: { plugins: { legend: { position: 'bottom' } } } });
+      upsertChart('execTrend', { type: 'line', data: { labels: trendMap.map(x => x.d.slice(5)), datasets: [{ label: 'Hours', data: trendMap.map(x => x.h), borderColor: '#2f80ed', tension: 0.3, fill: false }] }, options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+
+      const health = Object.entries(m.groupAgg).map(([k, v]) => {
+        const util = ((v.ams + v.project) / v.capacity) * 100;
+        const tag = util > 95 ? 'Red' : util > 80 ? 'Yellow' : 'Green';
+        const cls = tag === 'Red' ? 'risk' : tag === 'Yellow' ? 'warn' : 'good';
+        return `<div class="health-item"><div>${k}</div><div class="badge ${cls}">${tag}</div><div class="small-note">${util.toFixed(0)}% utilized</div></div>`;
+      }).join('');
+      byId('teamHealth').innerHTML = health;
+
+      const resourceRows = m.selectedResources.map(r => {
+        const re = m.todaysEfforts.filter(e => e.resource === r.name);
+        const ams = re.filter(e => e.category === 'AMS').reduce((s, e) => s + e.hours, 0);
+        const proj = re.filter(e => e.category === 'Project').reduce((s, e) => s + e.hours, 0);
+        const available = Math.max(0, 8 - ams - proj);
+        const util = ((ams + proj) / 8) * 100;
+        const c = available > 3 ? 'good' : available >= 1 ? 'warn' : 'risk';
+        return { name: r.name, role: r.role, group: r.group, ams, proj, available, util, c };
+      });
+
+      byId('resourceTable').innerHTML = resourceRows.map(r => `<tr><td>${r.name}</td><td>${r.role}</td><td class="blue">${r.ams}</td><td class="orange">${r.proj}</td><td class="green">${r.available}</td><td><span class="badge ${r.c}">${r.util.toFixed(0)}%</span></td></tr>`).join('');
+      upsertChart('resourceAvailChart', { type: 'bar', data: { labels: resourceRows.map(r => r.name.split(' ')[0]), datasets: [{ data: resourceRows.map(r => r.available), backgroundColor: '#27ae60' }] }, options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+
+      byId('topAvailable').innerHTML = resourceRows.sort((a,b) => b.available - a.available).slice(0,5).map(r => `<li>${r.name} (${r.available}h free)</li>`).join('');
+      byId('overUtilized').innerHTML = resourceRows.filter(r => r.util > 100 || r.available < 1).map(r => `<li>${r.name} (${r.util.toFixed(0)}%)</li>`).join('') || '<li>None</li>';
+
+      const totalEffort = m.efforts.reduce((s, e) => s + e.hours, 0);
+      byId('effortTotal').textContent = `${totalEffort}h`;
+      byId('effortAvg').textContent = `${(totalEffort / m.efforts.length).toFixed(1)}h`;
+
+      const amsAll = m.efforts.filter(e => e.category === 'AMS').reduce((s, e) => s + e.hours, 0);
+      const projectAll = m.efforts.filter(e => e.category === 'Project').reduce((s, e) => s + e.hours, 0);
+      upsertChart('effortPie', { type: 'pie', data: { labels: ['AMS', 'Project'], datasets: [{ data: [amsAll, projectAll], backgroundColor: ['#2f80ed','#f2994a'] }] } });
+      upsertChart('effortLine', { type: 'line', data: { labels: dates.map(d => d.slice(5)), datasets: [{ data: trendMap.map(t => t.h), borderColor: '#f2994a', tension: 0.3 }] }, options: { plugins: { legend: { display: false } } } });
+      upsertChart('effortProjectBar', { type: 'bar', data: { labels: m.projAgg.map(p => p.name.split(' ')[0]), datasets: [{ data: m.projAgg.map(p => p.hours), backgroundColor: '#2f80ed' }] }, options: { plugins: { legend: { display: false } } } });
+
+      byId('effortActivity').innerHTML = m.efforts.slice(0, 25).map(e => `<tr><td>${e.date}</td><td>${e.resource}</td><td>${data.projects.find(p => p.id === e.projectId).name}</td><td>${e.category}</td><td>${e.hours}</td></tr>`).join('');
+
+      byId('projectCount').textContent = data.projects.length;
+      byId('projectCompleted').textContent = data.projects.filter(p => p.status === 'Completed').length;
+      byId('projectProgress').textContent = data.projects.filter(p => p.status === 'In Progress').length;
+
+      const statusCount = ['Completed', 'In Progress', 'On Hold'].map(s => data.projects.filter(p => p.status === s).length);
+      upsertChart('statusDonut', { type: 'doughnut', data: { labels: ['Completed', 'In Progress', 'On Hold'], datasets: [{ data: statusCount, backgroundColor: ['#27ae60', '#2f80ed', '#e74c3c'] }] } });
+      upsertChart('projectEffortBar', { type: 'bar', data: { labels: m.projAgg.map(p => p.name.split(' ')[0]), datasets: [{ data: m.projAgg.map(p => p.hours), backgroundColor: '#f2994a' }] }, options: { plugins: { legend: { display: false } } } });
+
+      byId('projectTable').innerHTML = data.projects.map(p => {
+        const cls = p.status === 'Completed' ? 'status-completed' : p.status === 'In Progress' ? 'status-inprogress' : 'status-onhold';
+        const hours = m.projAgg.find(a => a.id === p.id)?.hours || 0;
+        return `<tr><td>${p.name}</td><td>${p.type}</td><td><span class="badge ${cls}">${p.status}</span></td><td>${p.startDate} → ${p.endDate}</td><td><div class="progress"><span style="width:${p.progress}%"></span></div></td><td>${hours}h</td></tr>`;
+      }).join('');
+
+      byId('leaveHead').innerHTML = `<tr><th>Resource</th>${dates.map(d => `<th>${d.slice(5)}</th>`).join('')}</tr>`;
+      byId('leaveBody').innerHTML = m.selectedResources.map(r => `<tr><td>${r.name}</td>${dates.map(d => `<td class="${isLeave(r.name,d) ? 'leave':'work'}">${isLeave(r.name,d) ? 'L':'W'}</td>`).join('')}</tr>`).join('');
+      const weekLeaveEntries = data.leaves.filter(l => l.endDate >= dates[0] && l.startDate <= dates[dates.length - 1]).length;
+      const onDate = m.selectedResources.filter(r => isLeave(r.name, m.selectedDate)).length;
+      byId('leavesWeek').textContent = weekLeaveEntries;
+      byId('leavePeople').textContent = onDate;
+
+      const dailyCap = dates.map(d => m.selectedResources.reduce((sum, r) => sum + (isLeave(r.name, d) ? 0 : 8), 0));
+      const dailyDemand = dates.map(d => m.efforts.filter(e => e.date === d).reduce((s, e) => s + e.hours, 0));
+      upsertChart('forecastLine', { type: 'line', data: { labels: dates.map(d => d.slice(5)), datasets: [{ label: 'Capacity', data: dailyCap, borderColor: '#27ae60', tension: 0.3 }, { label: 'Demand', data: dailyDemand, borderColor: '#e74c3c', tension: 0.3 }] } });
+
+      byId('forecastTable').innerHTML = m.selectedResources.map(r => {
+        const available7d = dates.reduce((s, d) => {
+          const booked = m.efforts.filter(e => e.resource === r.name && e.date === d).reduce((x, e) => x + e.hours, 0);
+          return s + Math.max(0, (isLeave(r.name, d) ? 0 : 8) - booked);
+        }, 0);
+        return `<tr><td>${r.name}</td><td>${r.group}</td><td>${available7d}h</td></tr>`;
+      }).join('');
+
+      const selectedProject = byId('simulationProject').value;
+      const required = m.efforts.filter(e => e.projectId === selectedProject && e.category === 'Project').reduce((s,e)=>s+e.hours,0);
+      const availablePool = dates.reduce((s, d) => s + m.selectedResources.reduce((acc, r) => {
+        const booked = m.efforts.filter(e => e.resource === r.name && e.date === d).reduce((x, e) => x + e.hours, 0);
+        return acc + Math.max(0, (isLeave(r.name, d) ? 0 : 8) - booked);
+      }, 0), 0);
+      byId('simulationResult').textContent = `Required hrs: ${required}h · Available hrs: ${availablePool}h · ${availablePool >= required ? 'Feasible' : 'At Risk'}`;
+
+      byId('reportUtil').textContent = `${m.utilizationPct.toFixed(1)}%`;
+      byId('reportAvail').textContent = `${availPct.toFixed(1)}%`;
+      byId('reportEffort').textContent = `${totalEffort}h`;
+      const over = resourceRows.filter(r => r.available < 1).length;
+      byId('reportOver').textContent = over;
+      upsertChart('reportRank', { type: 'bar', data: { labels: resourceRows.map(r => r.name.split(' ')[0]), datasets: [{ data: resourceRows.map(r => r.util), backgroundColor: '#2f80ed' }] }, options: { plugins: { legend: { display: false } } } });
+      upsertChart('reportDist', { type: 'pie', data: { labels: ['AMS', 'Project', 'Available'], datasets: [{ data: [m.amsHours, m.projectHours, m.availableCapacity], backgroundColor: ['#2f80ed','#f2994a','#27ae60'] }] } });
+      upsertChart('reportHealth', { type: 'bar', data: { labels: data.projects.map(p => p.name.split(' ')[0]), datasets: [{ data: data.projects.map(p => p.progress), backgroundColor: data.projects.map(p => p.progress >= 70 ? '#27ae60' : p.progress >= 45 ? '#f2c94c' : '#e74c3c') }] }, options: { plugins: { legend: { display: false } } } });
+    }
+
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      btn.classList.add('active');
+      byId(btn.dataset.view).classList.add('active');
+    }));
+
+    byId('groupFilter').addEventListener('change', render);
+    byId('dateFilter').addEventListener('change', render);
+    byId('simulationProject').addEventListener('change', render);
+
+    render();
   </script>
 </body>
 </html>
