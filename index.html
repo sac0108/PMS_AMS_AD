@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PMS / AMS Dashboard Prototype</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #1f2a37;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --blue: #2f80ed;
+      --orange: #f2994a;
+      --green: #27ae60;
+      --red: #eb5757;
+      --yellow: #f2c94c;
+      --sidebar: #0f172a;
+      --sidebar-hover: #1e293b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: var(--sidebar);
+      color: #fff;
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .brand {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: .2px;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.16);
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: #dbeafe;
+      text-align: left;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .nav-btn:hover { background: var(--sidebar-hover); }
+    .nav-btn.active {
+      background: #1d4ed8;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .content-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .chip {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      border-radius: 20px;
+      padding: 8px 12px;
+    }
+
+    .main {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .cards {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      flex: 1;
+      min-width: 160px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .card-title {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      overflow-x: auto;
+    }
+
+    .panel h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 10px 8px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    .badge {
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      display: inline-block;
+    }
+
+    .good { background: rgba(39, 174, 96, .14); color: var(--green); }
+    .warn { background: rgba(242, 201, 76, .2); color: #9a7b00; }
+    .risk { background: rgba(235, 87, 87, .16); color: #b42318; }
+
+    .status-active { background: rgba(47,128,237,.14); color: var(--blue); }
+    .status-delayed { background: rgba(235,87,87,.14); color: #b42318; }
+    .status-planning { background: rgba(242,201,76,.2); color: #9a7b00; }
+
+    .progress {
+      width: 120px;
+      height: 9px;
+      background: #edf2f7;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), #56ccf2);
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { width: 180px; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">PMS / AMS</div>
+      <button class="nav-btn active" data-view="executive">Executive Summary</button>
+      <button class="nav-btn" data-view="capacity">Resource Capacity</button>
+      <button class="nav-btn" data-view="effort">Effort Tracking</button>
+      <button class="nav-btn" data-view="portfolio">Project Portfolio</button>
+    </aside>
+
+    <div class="content-wrap">
+      <div class="topbar">
+        <span class="chip">Month: Apr 2026</span>
+        <span class="chip">Location: All</span>
+        <span class="chip">Role: All</span>
+        <span class="chip">Project: All</span>
+      </div>
+
+      <main class="main">
+        <section id="executive" class="view active">
+          <div class="cards">
+            <div class="card">
+              <div class="card-title">Total Capacity</div>
+              <div class="card-value" id="totalCapacity">0h</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Utilization %</div>
+              <div class="card-value" id="utilizationPct">0%</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Available %</div>
+              <div class="card-value" id="availablePct">0%</div>
+            </div>
+          </div>
+          <div class="panel" style="margin-top:14px; max-width:680px;">
+            <h3>Capacity Split</h3>
+            <canvas id="summaryPie" height="130"></canvas>
+            <div class="legend">
+              <span><i class="dot" style="background:var(--blue)"></i>AMS</span>
+              <span><i class="dot" style="background:var(--orange)"></i>Project</span>
+              <span><i class="dot" style="background:var(--green)"></i>Available</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="capacity" class="view">
+          <div class="panel">
+            <h3>Resource Capacity</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th><th>Role</th><th>AMS Hours</th><th>Project Hours</th><th>Available</th><th>Load</th>
+                </tr>
+              </thead>
+              <tbody id="capacityTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="effort" class="view">
+          <div class="grid-2">
+            <div class="panel">
+              <h3>Effort by Project</h3>
+              <canvas id="effortBar" height="180"></canvas>
+            </div>
+            <div class="panel">
+              <h3>Sample Effort Entries</h3>
+              <table>
+                <thead>
+                  <tr><th>Resource</th><th>Project</th><th>Hours</th></tr>
+                </thead>
+                <tbody id="effortTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="portfolio" class="view">
+          <div class="panel">
+            <h3>Project Portfolio</h3>
+            <table>
+              <thead>
+                <tr><th>Project</th><th>Status</th><th>Progress %</th><th>Progress</th></tr>
+              </thead>
+              <tbody id="portfolioTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const resources = [
+      { name: "Sachin Saxena", role: "Tech Lead", ams: 48, project: 92, capacity: 160 },
+      { name: "Ashfaq Patel", role: "Senior Engineer", ams: 64, project: 72, capacity: 160 },
+      { name: "Akhil Reddy", role: "Engineer", ams: 56, project: 60, capacity: 160 },
+      { name: "Sunil Kumar", role: "Engineer", ams: 72, project: 44, capacity: 160 },
+      { name: "Karthik", role: "QA Analyst", ams: 40, project: 58, capacity: 160 }
+    ];
+
+    const projects = [
+      { name: "WebMethod Modernization", status: "Active", progress: 72 },
+      { name: "ITA Modernization", status: "Delayed", progress: 48 },
+      { name: "Dynamic Pricing", status: "Planning", progress: 30 }
+    ];
+
+    const effortEntries = [
+      { resource: "Sachin Saxena", project: "WebMethod Modernization", hours: 36 },
+      { resource: "Ashfaq Patel", project: "ITA Modernization", hours: 30 },
+      { resource: "Akhil Reddy", project: "Dynamic Pricing", hours: 26 },
+      { resource: "Sunil Kumar", project: "WebMethod Modernization", hours: 28 },
+      { resource: "Karthik", project: "ITA Modernization", hours: 24 }
+    ];
+
+    const totals = resources.reduce((acc, r) => {
+      acc.capacity += r.capacity;
+      acc.ams += r.ams;
+      acc.project += r.project;
+      return acc;
+    }, { capacity: 0, ams: 0, project: 0 });
+    totals.available = totals.capacity - (totals.ams + totals.project);
+
+    const utilization = ((totals.ams + totals.project) / totals.capacity) * 100;
+    const availablePct = (totals.available / totals.capacity) * 100;
+
+    document.getElementById("totalCapacity").textContent = `${totals.capacity}h`;
+    document.getElementById("utilizationPct").textContent = `${utilization.toFixed(1)}%`;
+    document.getElementById("availablePct").textContent = `${availablePct.toFixed(1)}%`;
+
+    const capacityBody = document.getElementById("capacityTable");
+    resources.forEach(r => {
+      const available = r.capacity - (r.ams + r.project);
+      const load = ((r.ams + r.project) / r.capacity) * 100;
+      const loadClass = load < 70 ? "good" : load <= 90 ? "warn" : "risk";
+      capacityBody.insertAdjacentHTML("beforeend", `
+        <tr>
+          <td>${r.name}</td>
+          <td>${r.role}</td>
+          <td style="color:var(--blue);font-weight:600;">${r.ams}</td>
+          <td style="color:var(--orange);font-weight:600;">${r.project}</td>
+          <td style="color:var(--green);font-weight:600;">${available}</td>
+          <td><span class="badge ${loadClass}">${load.toFixed(0)}%</span></td>
+        </tr>
+      `);
+    });
+
+    const effortTable = document.getElementById("effortTable");
+    effortEntries.forEach(e => {
+      effortTable.insertAdjacentHTML("beforeend", `
+        <tr><td>${e.resource}</td><td>${e.project}</td><td>${e.hours}</td></tr>
+      `);
+    });
+
+    const portfolioTable = document.getElementById("portfolioTable");
+    projects.forEach(p => {
+      const statusClass = p.status === "Active" ? "status-active" : p.status === "Delayed" ? "status-delayed" : "status-planning";
+      portfolioTable.insertAdjacentHTML("beforeend", `
+        <tr>
+          <td>${p.name}</td>
+          <td><span class="badge ${statusClass}">${p.status}</span></td>
+          <td>${p.progress}%</td>
+          <td><div class="progress"><span style="width:${p.progress}%;"></span></div></td>
+        </tr>
+      `);
+    });
+
+    const effortByProject = projects.map(p => ({
+      name: p.name,
+      hours: effortEntries.filter(e => e.project === p.name).reduce((sum, e) => sum + e.hours, 0)
+    }));
+
+    new Chart(document.getElementById("summaryPie"), {
+      type: "pie",
+      data: {
+        labels: ["AMS", "Project", "Available"],
+        datasets: [{
+          data: [totals.ams, totals.project, totals.available],
+          backgroundColor: ["#2f80ed", "#f2994a", "#27ae60"]
+        }]
+      },
+      options: { plugins: { legend: { display: false } } }
+    });
+
+    new Chart(document.getElementById("effortBar"), {
+      type: "bar",
+      data: {
+        labels: effortByProject.map(e => e.name),
+        datasets: [{
+          label: "Hours",
+          data: effortByProject.map(e => e.hours),
+          backgroundColor: "#f2994a"
+        }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true } },
+        plugins: { legend: { display: false } }
+      }
+    });
+
+    const navButtons = document.querySelectorAll(".nav-btn");
+    const views = document.querySelectorAll(".view");
+
+    navButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        navButtons.forEach(b => b.classList.remove("active"));
+        views.forEach(v => v.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.view).classList.add("active");
+      });
+    });
+  </script>
+</body>
+</html>
