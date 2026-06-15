@@ -3,9 +3,71 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#060b14" />
-    <meta name="description" content="Program Intelligence OS — Where AI runs operations and humans drive strategy." />
-    <title>PIOS — Program Intelligence OS</title>
+    <meta name="theme-color" content="#050814" />
+    <meta name="description" content="PROGRAM INTELLIGENCE OS — an offline, AI-inspired enterprise command center for portfolio operations." />
+    <title>PROGRAM INTELLIGENCE OS</title>
+    <link rel="stylesheet" href="styles.css" />
   </head>
-  <body><div id="root"></div><script type="module" src="/src/main.jsx"></script></body>
+  <body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+    <canvas id="particle-field" aria-hidden="true"></canvas>
+
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="brand">
+        <span class="brand-mark">PIO</span>
+        <div>
+          <strong>PROGRAM</strong>
+          <span>INTELLIGENCE OS</span>
+        </div>
+      </div>
+      <nav id="nav" class="nav"></nav>
+      <div class="side-status glass">
+        <span class="pulse-dot"></span>
+        <div><strong>Autonomous Ops</strong><small>13 systems online</small></div>
+      </div>
+    </aside>
+
+    <main class="app-shell">
+      <header class="topbar glass">
+        <div>
+          <p class="eyebrow">Enterprise Command Center</p>
+          <h1 id="screen-title">Executive Pulse</h1>
+        </div>
+        <div class="top-actions">
+          <button class="ghost-btn" id="story-mode-btn">Storytelling Mode</button>
+          <button class="primary-btn" id="copilot-spark">Ask AI PMO Copilot</button>
+        </div>
+      </header>
+
+      <section id="hero" class="hero glass">
+        <div>
+          <p class="eyebrow">Monday, June 15, 2026 · UTC</p>
+          <h2>Where AI runs operations and humans drive strategy.</h2>
+          <p>Monitor portfolio health, resources, risks, delivery confidence, agent automations, and executive narratives from a single static offline dashboard.</p>
+        </div>
+        <div class="hero-orb"><span>98%</span><small>decision confidence</small></div>
+      </section>
+
+      <section id="kpis" class="kpi-grid"></section>
+      <section id="screen" class="screen-grid"></section>
+    </main>
+
+    <section id="story-overlay" class="story-overlay" aria-hidden="true">
+      <div class="story-stage glass">
+        <button id="story-close" class="story-close" aria-label="Close presentation">×</button>
+        <p class="eyebrow">Executive Storytelling Mode</p>
+        <h2 id="story-title"></h2>
+        <p id="story-copy"></p>
+        <div id="story-visual" class="story-visual"></div>
+        <div class="story-controls">
+          <button id="prev-slide" class="ghost-btn">Previous</button>
+          <span id="slide-count"></span>
+          <button id="next-slide" class="primary-btn">Next</button>
+        </div>
+      </div>
+    </section>
+
+    <script src="script.js"></script>
+  </body>
 </html>
